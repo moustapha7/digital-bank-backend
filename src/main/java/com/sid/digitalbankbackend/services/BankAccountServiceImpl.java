@@ -11,6 +11,7 @@ import com.sid.digitalbankbackend.mappers.BankAccountMapperImpl;
 import com.sid.digitalbankbackend.repositories.AccountOperationRepository;
 import com.sid.digitalbankbackend.repositories.BankAccountRepository;
 import com.sid.digitalbankbackend.repositories.CustomerRepository;
+import org.apache.catalina.startup.ClassLoaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,5 +226,12 @@ public class BankAccountServiceImpl implements BankAccountService {
         accountHistoryDTO.setTotalPages(accountOperations.getTotalPages());
 
         return accountHistoryDTO;
+    }
+
+    @Override
+    public List<CustomerDTO> searchCustomers(String keyword) {
+        List<Customer> customers = customerRepository.searchCustomer(keyword);
+        List<CustomerDTO> customerDTOS = customers.stream().map(cust -> dtoMapper.fromCustomer(cust)).collect(Collectors.toList());
+        return customerDTOS;
     }
 }

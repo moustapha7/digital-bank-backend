@@ -1,22 +1,20 @@
 package com.sid.digitalbankbackend.web;
 
 
-import com.sid.digitalbankbackend.dtos.AccountHistoryDTO;
-import com.sid.digitalbankbackend.dtos.AccountOperationDTO;
-import com.sid.digitalbankbackend.dtos.BankAccountDTO;
+import com.mysql.cj.jdbc.result.CachedResultSetMetaData;
+import com.sid.digitalbankbackend.dtos.*;
 import com.sid.digitalbankbackend.entities.BankAccount;
+import com.sid.digitalbankbackend.exceptions.BalanceNotSufficientException;
 import com.sid.digitalbankbackend.exceptions.BankAccountNotFoundException;
 import com.sid.digitalbankbackend.services.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class BankAccountController {
 
     @Autowired
@@ -46,5 +44,22 @@ public class BankAccountController {
         return bankAccountService.getAccountHistory(accountId,page,size);
     }
 
+    @PostMapping("/accounts/debit")
+    public DebitDTO debit(@RequestBody DebitDTO debitDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        this.bankAccountService.debit(debitDTO.getAccountId(),debitDTO.getAmount(),debitDTO.getDescription());
+        return debitDTO;
+    }
+
+    @PostMapping("/accounts/credit")
+    public CreditDTO credit(@RequestBody CreditDTO creditDTO) throws BankAccountNotFoundException {
+        this.bankAccountService.credit(creditDTO.getAccountId(),creditDTO.getAmount(),creditDTO.getDescription());
+        return creditDTO;
+    }
+
+    @PostMapping("/accounts/transfer")
+    public void transfer(@RequestBody TransferRequestDTO transferRequestDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        this.bankAccountService.transfer(transferRequestDTO.getAccountSource(),transferRequestDTO.getAccountDestination()
+                ,transferRequestDTO.getAmount());
+    }
 
 }
